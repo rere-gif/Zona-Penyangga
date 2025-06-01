@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zona Penyangga - Game Pembelajaran Buffer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .game-board {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .zones-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .zone {
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .zone:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .zona-inti {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .zona-penyangga {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            color: white;
+        }
+
+        .zona-transisi {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
+            color: white;
+        }
+
+        .zone h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .zone p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .game-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .players-section, .challenge-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .player-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .player-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .player-role {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .player-score {
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .challenge-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .challenge-title {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .challenge-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .solution-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .solution-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .solution-btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .scoreboard {
+            background: #2c3e50;
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .scoreboard h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .game-status {
+            background: #34495e;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .zones-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .solution-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 ZONA PENYANGGA 🌿</h1>
+            <p>Game Pembelajaran Konsep Buffer untuk Kimia SMA</p>
+        </div>
+
+        <div class="game-board fade-in">
+            <div class="zones-container">
+                <div class="zone zona-inti">
+                    <h3>🔴 ZONA INTI</h3>
+                    <p>Area yang dilindungi sepenuhnya. Tidak boleh ada aktivitas yang mengganggu keseimbangan di sini.</p>
+                </div>
+                <div class="zone zona-penyangga pulse">
+                    <h3>🟡 ZONA PENYANGGA</h3>
+                    <p>Area buffer yang melindungi zona inti. Aktivitas terbatas untuk menjaga keseimbangan.</p>
+                </div>
+                <div class="zone zona-transisi">
+                    <h3>🔵 ZONA TRANSISI</h3>
+                    <p>Area tempat aktivitas masyarakat berlangsung dengan tetap memperhatikan kelestarian.</p>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <div class="players-section">
+                    <h3 class="section-title">👥 Pemain & Peran</h3>
+                    <div id="playersList">
+                        <div class="player-card">
+                            <div class="player-info">
+                                <h4>Tim 1</h4>
+                                <div class="player-role">Petani & Peneliti</div>
+                            </div>
+                            <div class="player-score">0</div>
+                        </div>
+                        <div class="player-card">
+                            <div class="player-info">
+                                <h4>Tim 2</h4>
+                                <div class="player-role">Pemerintah & Aktivis</div>
+                            </div>
+                            <div class="player-score">0</div>
+                        </div>
+                        <div class="player-card">
+                            <div class="player-info">
+                                <h4>Tim 3</h4>
+                                <div class="player-role">Penambang & Satwa Liar</div>
+                            </div>
+                            <div class="player-score">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="challenge-section">
+                    <h3 class="section-title">⚡ Tantangan Saat Ini</h3>
+                    <div class="challenge-card">
+                        <div class="challenge-title">Skenario Buffer Challenge</div>
+                        <div class="challenge-description" id="currentChallenge">
+                            Klik "Ambil Tantangan Baru" untuk memulai permainan!
+                        </div>
+                        <div class="solution-options" id="solutionOptions" style="display: none;">
+                            <button class="solution-btn" onclick="chooseSolution('A')">Solusi A</button>
+                            <button class="solution-btn" onclick="chooseSolution('B')">Solusi B</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="drawChallenge()">🎯 Ambil Tantangan Baru</button>
+                <button class="btn btn-success" onclick="showRules()">📋 Aturan Permainan</button>
+                <button class="btn btn-warning" onclick="resetGame()">🔄 Reset Game</button>
+            </div>
+        </div>
+
+        <div class="scoreboard">
+            <h3>🏆 Papan Skor</h3>
+            <div class="game-status" id="gameStatus">
+                Game siap dimulai! Klik "Ambil Tantangan Baru" untuk memulai.
+            </div>
+            <div id="finalScore" style="display: none;">
+                <h4>Pemenang: <span id="winner"></span></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk aturan permainan -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>📋 Aturan Permainan Zona Penyangga</h2>
+            <div style="text-align: left; margin-top: 20px;">
+                <h3>🎯 Tujuan:</h3>
+                <p>Memahami konsep buffer/penyangga dalam kimia melalui simulasi ekosistem</p>
+                
+                <h3>👥 Cara Bermain:</h3>
+                <ul>
+                    <li>3-6 pemain dibagi dalam tim</li>
+                    <li>Setiap tim mendapat peran berbeda</li>
+                    <li>Ambil kartu tantangan secara bergiliran</li>
+                    <li>Pilih solusi terbaik untuk menjaga keseimbangan</li>
+                </ul>
+                
+                <h3>📊 Penilaian:</h3>
+                <ul>
+                    <li>Solusi efektif: +2 poin</li>
+                    <li>Solusi kurang tepat: +1 poin</li>
+                    <li>Solusi merusak: -1 poin</li>
+                </ul>
+                
+                <h3>🏆 Menang:</h3>
+                <p>Tim dengan poin tertinggi setelah semua tantangan selesai!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data game
+        let currentTeam = 0;
+        let teams = [
+            { name: "Tim 1", role: "Petani & Peneliti", score: 0 },
+            { name: "Tim 2", role: "Pemerintah & Aktivis", score: 0 },
+            { name: "Tim 3", role: "Penambang & Satwa Liar", score: 0 }
+        ];
+        
+        let challenges = [
+            {
+                title: "Pencemaran Air di Zona Penyangga",
+                description: "Terjadi pencemaran air akibat limbah industri yang mengancam keseimbangan pH ekosistem. Buffer alami terancam rusak!",
+                solutions: {
+                    A: { text: "Menambahkan kapur untuk menetralkan pH", points: 2 },
+                    B: { text: "Membiarkan alam memulihkan sendiri", points: -1 }
+                }
+            },
+            {
+                title: "Hujan Asam Melanda Kawasan",
+                description: "Hujan asam menurunkan pH tanah drastis, mengancam kehidupan flora dan fauna. Sistem buffer tanah tidak mampu mengatasi!",
+                solutions: {
+                    A: { text: "Menanam tanaman yang toleran asam", points: 1 },
+                    B: { text: "Menambahkan buffer karbonat ke tanah", points: 2 }
+                }
+            },
+            {
+                title: "Aktivitas Pertambangan Berlebihan",
+                description: "Pertambangan melepaskan logam berat yang mengubah keseimbangan kimia tanah dan air. Buffer alami kewalahan!",
+                solutions: {
+                    A: { text: "Menggunakan tanaman hiperakumulator", points: 2 },
+                    B: { text: "Melanjutkan pertambangan dengan keuntungan", points: -1 }
+                }
+            },
+            {
+                title: "Eutrofikasi di Perairan",
+                description: "Kelebihan nutrient menyebabkan pertumbuhan alga berlebihan, mengubah pH dan oksigen terlarut dalam air.",
+                solutions: {
+                    A: { text: "Mengurangi penggunaan pupuk di area sekitar", points: 2 },
+                    B: { text: "Menambahkan ikan pemakan alga", points: 1 }
+                }
+            },
+            {
+                title: "Kebakaran Hutan Skala Besar",
+                description: "Kebakaran melepaskan abu yang mengubah pH tanah menjadi sangat basa, mengganggu siklus nutrient.",
+                solutions: {
+                    A: { text: "Menambahkan bahan organik asam", points: 2 },
+                    B: { text: "Membiarkan suksesi alami terjadi", points: 1 }
+                }
+            },
+            {
+                title: "Invasi Spesies Asing",
+                description: "Spesies invasif mengubah komposisi kimia tanah dan mengganggu sistem buffer alami ekosistem.",
+                solutions: {
+                    A: { text: "Program eradikasi spesies invasif", points: 2 },
+                    B: { text: "Adaptasi dengan spesies baru", points: -1 }
+                }
+            }
+        ];
+        
+        let currentChallengeIndex = -1;
+        let usedChallenges = [];
+
+        function drawChallenge() {
+            if (usedChallenges.length >= challenges.length) {
+                endGame();
+                return;
+            }
+            
+            let availableChallenges = challenges.filter((_, index) => !usedChallenges.includes(index));
+            let randomIndex = Math.floor(Math.random() * availableChallenges.length);
+            let selectedChallenge = availableChallenges[randomIndex];
+            currentChallengeIndex = challenges.indexOf(selectedChallenge);
+            usedChallenges.push(currentChallengeIndex);
+            
+            document.getElementById('currentChallenge').innerHTML = `
+                <strong>${selectedChallenge.title}</strong><br>
+                ${selectedChallenge.description}
+            `;
+            
+            let solutionsHtml = `
+                <button class="solution-btn" onclick="chooseSolution('A')">${selectedChallenge.solutions.A.text}</button>
+                <button class="solution-btn" onclick="chooseSolution('B')">${selectedChallenge.solutions.B.text}</button>
+            `;
+            
+            document.getElementById('solutionOptions').innerHTML = solutionsHtml;
+            document.getElementById('solutionOptions').style.display = 'grid';
+            
+            updateGameStatus(`Giliran ${teams[currentTeam].name} (${teams[currentTeam].role})`);
+        }
+
+        function chooseSolution(choice) {
+            let challenge = challenges[currentChallengeIndex];
+            let solution = challenge.solutions[choice];
+            let points = solution.points;
+            
+            teams[currentTeam].score += points;
+            
+            let feedback = '';
+            if (points === 2) {
+                feedback = '🎉 Solusi Excellent! Buffer system terjaga dengan baik!';
+            } else if (points === 1) {
+                feedback = '👍 Solusi cukup baik, tapi masih bisa lebih optimal.';
+            } else {
+                feedback = '❌ Solusi kurang tepat, buffer system terganggu!';
+            }
+            
+            alert(`${teams[currentTeam].name} memilih: ${solution.text}\n\n${feedback}\nPoin yang didapat: ${points > 0 ? '+' : ''}${points}`);
+            
+            updateScoreboard();
+            nextTurn();
+            
+            document.getElementById('solutionOptions').style.display = 'none';
+            document.getElementById('currentChallenge').innerHTML = 'Klik "Ambil Tantangan Baru" untuk tantangan selanjutnya!';
+        }
+
+        function nextTurn() {
+            currentTeam = (currentTeam + 1) % teams.length;
+        }
+
+        function updateScoreboard() {
+            let playersHtml = '';
+            teams.forEach((team, index) => {
+                playersHtml += `
+                    <div class="player-card ${index === currentTeam ? 'pulse' : ''}">
+                        <div class="player-info">
+                            <h4>${team.name}</h4>
+                            <div class="player-role">${team.role}</div>
+                        </div>
+                        <div class="player-score">${team.score}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('playersList').innerHTML = playersHtml;
+        }
+
+        function updateGameStatus(status) {
+            document.getElementById('gameStatus').textContent = status;
+        }
+
+        function endGame() {
+            let winner = teams.reduce((prev, current) => (prev.score > current.score) ? prev : current);
+            
+            document.getElementById('winner').textContent = `${winner.name} dengan ${winner.score} poin!`;
+            document.getElementById('finalScore').style.display = 'block';
+            
+            updateGameStatus('🎊 Permainan Selesai! Selamat kepada pemenang!');
+            
+            setTimeout(() => {
+                alert(`🏆 GAME OVER! 🏆\n\nPemenang: ${winner.name}\nSkor Akhir: ${winner.score} poin\n\nTerima kasih telah belajar tentang sistem buffer!`);
+            }, 1000);
+        }
+
+        function resetGame() {
+            if (confirm('Apakah Anda yakin ingin mereset permainan?')) {
+                teams.forEach(team => team.score = 0);
+                currentTeam = 0;
+                usedChallenges = [];
+                currentChallengeIndex = -1;
+                
+                document.getElementById('currentChallenge').innerHTML = 'Klik "Ambil Tantangan Baru" untuk memulai permainan!';
+                document.getElementById('solutionOptions').style.display = 'none';
+                document.getElementById('finalScore').style.display = 'none';
+                
+                updateScoreboard();
+                updateGameStatus('Game telah direset! Siap untuk memulai lagi.');
+            }
+        }
+
+        function showRules() {
+            document.getElementById('rulesModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('rulesModal').style.display = 'none';
+        }
+
+        // Event listener untuk menutup modal ketika klik di luar
+        window.onclick = function(event) {
+            let modal = document.getElementById('rulesModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Initialize game
+        updateScoreboard();
+        updateGameStatus('Game siap dimulai! Klik "Ambil Tantangan Baru" untuk memulai.');
+    </script>
+</body>
+</html>
